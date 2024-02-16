@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контактна книга</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Контактна книга</h1>
+        <form id="contactForm">
+            <div class="form-group">
+                <label for="name">Ім'я контакту</label>
+                <input type="text" class="form-control" id="name" placeholder="Введіть ім'я контакту">
+            </div>
+            <div class="form-group">
+                <label for="phone">Номер телефону</label>
+                <input type="text" class="form-control" id="phone" placeholder="Введіть номер телефону">
+            </div>
+            <button type="submit" class="btn btn-primary">Додати контакт</button>
+        </form>
+
+        <hr>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Ім'я</th>
+                    <th>Номер телефону</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody id="contactList"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const contactForm = document.getElementById('contactForm');
+        const contactList = document.getElementById('contactList');
+
+   
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+       
+        function saveContact(name, phone) {
+            const contacts = JSON.parse(localStorage.getItem('contacts')) || [];
+            const newContact = {
+                id: generateUUID(),
+                name: name,
+                phone: phone
+            };
+            contacts.push(newContact);
+            localStorage.setItem('contacts', JSON.stringify(contacts));
+            displayContacts();
+        }
+
+       
+        function displayContacts() {
+            const contacts = JSON.parse(localStorage.getItem('contacts')) || [];
+            contactList.innerHTML = '';
+            contacts.forEach(contact => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${contact.id}</td>
+                    <td>${contact.name}</td>
+                    <td>${contact.phone}</td>
+                    <td><button class="btn btn-danger btn-sm" onclick="deleteContact('${contact.id}')">Видалити</button></td>
+                `;
+                contactList.appendChild(row);
+            });
+        }
+
+    
+        function deleteContact(id) {
+            const contacts = JSON.parse(localStorage.getItem('contacts')) || [];
+            const updatedContacts = contacts.filter(contact => contact.id !== id);
+            localStorage.setItem('contacts', JSON.stringify(updatedContacts));
+            displayContacts();
+        }
+
+        
+        contactForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            if (name && phone) {
+                saveContact(name, phone);
+                contactForm.reset();
+            }
+        });
+
+      
+        displayContacts();
+    </script>
+</body>
+</html>
